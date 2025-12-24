@@ -1,0 +1,51 @@
+- id: protected
+  match:
+    url: http://172.25.60.23:4457/
+    methods:
+      - GET
+  authenticators:
+    - handler: bearer_token
+    - handler: cookie_session
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+  upstream:
+    preserve_host: true
+ #   strip_path: /dummyserver   # <--- ADD THIS LINE
+    url: "http://172.25.60.23:8000/"
+
+# - id: tracablity
+#   match:
+#     url: http://172.25.60.23:4457/api/tracablity/v1/*
+#     methods:
+#       - GET
+#   authenticators:
+#     - handler: bearer_token
+#     - handler: cookie_session
+#   authorizer:
+#     handler: allow
+#   mutators:
+#     - handler: id_token
+#   upstream:
+#     preserve_host: true
+# #    strip_path: /dummyserver   # <--- ADD THIS LINE
+#     url: "http://172.25.60.23:8000/${request.path}"
+
+# - id: public
+#   match:
+#     url: http://172.25.60.23:4457/signup
+#     methods:
+#       - GET
+#   authenticators:
+#     - handler: bearer_token
+#     - handler: cookie_session
+#   authorizer:
+#     handler: allow
+#   mutators:
+#     - handler: id_token
+#   upstream:
+#     preserve_host: true
+#     strip_path: /dummyserver   # <--- ADD THIS LINE
+#     url: "http://172.25.60.23:8000"
+# # 
