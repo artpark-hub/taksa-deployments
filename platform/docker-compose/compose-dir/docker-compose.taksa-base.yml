@@ -99,17 +99,36 @@ services:
       timeout: 5s
       retries: 5
 
+  taksa-nats:
+    image: nats:latest
+    container_name: taksa-nats
+    command: ["-c", "/config/nats-server.conf"]
+    ports:
+      - "${TAKSA_NATS_SERVER_PORT}:4222" # Client port
+      - "${TAKSA_NATS_MONITOR_PORT}:8222" # HTTP Monitoring port
+    environment:
+      - NATS_SYS_USER=${TAKSA_NATS_SYS_USER}
+      - NATS_SYS_PASSWORD=${TAKSA_NATS_SYS_PASSWORD}
+    volumes:
+      - ../config/nats/nats-server.conf:/config/nats-server.conf:ro
+      - taksa-nats-data:/data
+
 volumes:
   taksa-ory-data:
    driver_opts:
      type: 'none'
      o: 'bind'
-     device: '${TAKSA_DATADIR}/taksa/ory-db'
+     device: '${TAKSA_DATADIR}/taksa/data/ory-db'
   taksa-ts-data:
    driver_opts:
      type: 'none'
      o: 'bind'
-     device: '${TAKSA_DATADIR}/taksa/timescale-db'
+     device: '${TAKSA_DATADIR}/taksa/data/timescale-db'
+  taksa-nats-data:
+   driver_opts:
+     type: 'none'
+     o: 'bind'
+     device: '${TAKSA_DATADIR}/taksa/data/nats-data'
 
 networks:
   taksa-network:
