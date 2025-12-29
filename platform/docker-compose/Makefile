@@ -1,13 +1,21 @@
-.PHONY: init up down logs
+.PHONY: init up down start stop logs
 
 init:
-	sudo mkdir -p /datadrive/taksa/postgres
+	sudo mkdir -p /datadrive/taksa/ory-db
+	sudo mkdir -p /datadrive/taksa/timescale-db
+	cp -i taksa.env.example taksa.env
 
 up:
-	docker compose -f docker-compose.ory.yml up -d
+	./taksa-stack-management.sh up -d
 
 down:
-	docker compose -f docker-compose.ory.yml down
+	./taksa-stack-management.sh down -v
+
+start:
+	./taksa-stack-management.sh start
+
+stop:
+	./taksa-stack-management.sh stop 
 
 logs:
-	docker compose -f docker-compose.ory.yml logs -f
+	./taksa-stack-management.sh logs -f

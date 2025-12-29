@@ -1,0 +1,116 @@
+services:
+  taksa-ory-db:
+    image: postgres:18
+    container_name: taksa-ory-db
+    ports:
+      - "${KRATOS_PG_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${KRATOS_PG_USER}
+      - POSTGRES_PASSWORD=${KRATOS_PG_PASSWORD}
+      - POSTGRES_DB=${KRATOS_PG_DB}
+    volumes:
+      - taksa-ory-data:/var/lib/postgresql
+    networks:
+      - taksa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kratos-migrate:
+    image: oryd/kratos:v1.2.0
+    environment:
+      - DSN=${KRATOS_DSN}
+      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+    volumes:
+      - ../config/ory-stack/kratos:/etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
+    networks:
+      - taksa-network
+    depends_on:
+      taksa-ory-db:
+        condition: service_healthy
+
+  taksa-kratos:
+    image: oryd/kratos:v1.2.0
+    container_name: taksa-kratos
+    ports:
+      - '4433:4433'
+      - '4434:4434'
+    environment:
+      - DSN=${KRATOS_DSN}
+      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - LOG_LEVEL=debug
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    volumes:
+      - ../config/ory-stack/kratos:/etc/config/kratos
+    networks:
+      - taksa-network
+    restart: unless-stopped
+    depends_on:
+      - kratos-migrate
+
+  taksa-oathkeeper:
+    image: oryd/oathkeeper:v0.40
+    container_name: taksa-oathkeeper
+    ports:
+      - '4457:4455'
+      - '4456:4456'
+    environment:
+      - AUTHENTICATORS_BEARER_TOKEN_CONFIG_CHECK_SESSION_URL=http://taksa-kratos:4433/sessions/whoami
+    command: serve -c /etc/config/oathkeeper/oathkeeper.yml
+    volumes:
+      - ../config/ory-stack/oathkeeper:/etc/config/oathkeeper
+    networks:
+      - taksa-network
+    restart: unless-stopped
+    depends_on:
+      - taksa-kratos
+
+  taksa-mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    container_name: taksa-mailslurper
+    ports:
+      - '4436:4436'
+      - '4437:4437'
+    networks:
+      - taksa-network
+
+  taksa-tsdb:
+    image: timescale/timescaledb:latest-pg18
+    container_name: taksa-tsdb
+    ports:
+      - "${TSDB_PG_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${TSDB_PG_USER}
+      - POSTGRES_PASSWORD=${TSDB_PG_PASSWORD}
+      - POSTGRES_DB=${TSDB_PG_DB}
+    volumes:
+      - taksa-ts-data:/var/lib/postgresql
+      - ../config/database/schemas:/docker-entrypoint-initdb.d:ro
+    networks:
+      - taksa-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  taksa-ory-data:
+   driver_opts:
+     type: 'none'
+     o: 'bind'
+     device: '${TAKSA_DATADIR}/taksa/ory-db'
+  taksa-ts-data:
+   driver_opts:
+     type: 'none'
+     o: 'bind'
+     device: '${TAKSA_DATADIR}/taksa/timescale-db'
+
+networks:
+  taksa-network:
+    driver: bridge
