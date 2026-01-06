@@ -1,6 +1,6 @@
 - id: protected
   match:
-    url: http://172.25.60.23:4457/
+    url: http://172.25.60.23:4457/<.*>
     methods:
       - GET
   authenticators:
@@ -12,8 +12,7 @@
     - handler: id_token
   upstream:
     preserve_host: true
- #   strip_path: /dummyserver   # <--- ADD THIS LINE
-    url: "http://172.25.60.23:8000/"
+    url: "http://httpbin.org"
 
 # - id: tracablity
 #   match:
