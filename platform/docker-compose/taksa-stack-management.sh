@@ -22,7 +22,16 @@ if [ -f $dockercompose_dir/docker-compose.local.yml ]; then
     FEATURE_LOCAL=" -f $dockercompose_dir/docker-compose.local.yml"
 fi
 
-exec docker compose            \
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker compose"
+elif docker-compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+else
+    echo "Error: Docker Compose not found on this system" >&2
+    exit 1
+fi
+
+exec $DOCKER_COMPOSE_CMD       \
        $FEATURE_BASIC          \
        $FEATURE_WATCHTOWER     \
        $FEATURE_LOCAL          \
