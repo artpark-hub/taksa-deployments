@@ -1,0 +1,6 @@
+HTTP/1.1 502 Bad Gateway
+Content-Type: application/json
+Cache-Control: no-cache
+Connection: close
+
+{"error":"bad gateway","code":502,"message":"Bad Gateway"}
