@@ -1,15 +1,15 @@
 version: v1.2.0
-dsn: postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+# dsn: postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
 serve:
   public:
-    base_url: http://172.25.60.23:4433/
+    # base_url: http://172.25.60.23:4433/
     cors:
       enabled: true
-      allowed_origins:
-        - http://172.25.60.23:4433
-        - http://172.25.60.23:4434
-        - http://172.25.60.23:4457
-        - http://localhost:3000
+      # allowed_origins:
+      #   - http://172.25.60.23:4433
+      #   - http://172.25.60.23:4434
+      #   - http://172.25.60.23:4457
+      #   - http://localhost:3000
       allowed_methods:
         - POST
         - GET
@@ -25,14 +25,14 @@ serve:
         - Content-Type
         - Set-Cookie
       allow_credentials: true
-  admin:
-    base_url: http://172.25.60.23:4434/
+  # admin:
+  #   base_url: http://172.25.60.23:4434/
 selfservice:
-  default_browser_return_url: http://172.25.60.23:4433/
-  allowed_return_urls:
-    - http://172.25.60.23:4433
-    - http://172.25.60.23:4434
-    - http://localhost:3000
+  # default_browser_return_url: http://172.25.60.23:4433/
+  # allowed_return_urls:
+  #   - http://172.25.60.23:4433
+  #   - http://172.25.60.23:4434
+  #   - http://localhost:3000
   methods:
     password:
       enabled: true
@@ -41,25 +41,22 @@ selfservice:
         min_password_length: 8
         identifier_similarity_check_enabled: false
   flows:
-    error:
-      ui_url: http://172.25.60.23:4433/error
+    # error:
+    #   ui_url: http://172.25.60.23:4433/error
     settings:
-      ui_url: http://172.25.60.23:4433/settings
+      # ui_url: http://172.25.60.23:4433/settings
       privileged_session_max_age: 15m
     recovery:
       enabled: true
-      ui_url: http://172.25.60.23:4433/recovery
+      # ui_url: http://172.25.60.23:4433/recovery
     verification:
       enabled: false
-    logout:
-      after:
-        default_browser_return_url: http://172.25.60.23:4433/
     login:
-      ui_url: http://172.25.60.23:4433/login
+      # ui_url: http://172.25.60.23:4433/login
       lifespan: 10m
     registration:
       lifespan: 10m
-      ui_url: http://172.25.60.23:4433/registration
+      # ui_url: http://172.25.60.23:4433/registration
       after:
         password:
           hooks:
@@ -68,7 +65,6 @@ log:
   level: debug
   format: json
   leak_sensitive_values: true
-# ✅ FIXED HERE
 secrets:
   cookie:
     - 0123456789abcdef0123456789abcdef
@@ -97,3 +93,6 @@ session:
 courier:
   smtp:
     connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
+
+
+# all the urls are commented out as i have already set them in the environment part of docker-compose file

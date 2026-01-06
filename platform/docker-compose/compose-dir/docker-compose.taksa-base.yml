@@ -37,12 +37,25 @@ services:
     image: oryd/kratos:v1.2.0
     container_name: taksa-kratos
     ports:
-      - '4433:4433'
-      - '4434:4434'
+      - "${KRATOS_PUBLIC_PORT}:4433"
+      - "${KRATOS_ADMIN_PORT}:4434"
     environment:
       - DSN=${KRATOS_DSN}
       #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
       - LOG_LEVEL=debug
+      # all these urls below were set in the config file but now as we are using emv vard we initialize them here rather then im the config file 
+      - SERVE_PUBLIC_BASE_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/
+      - SERVE_ADMIN_BASE_URL=http://${TAKSA_HOST_IP}:${KRATOS_ADMIN_PORT}/
+      - SESSION_COOKIE_DOMAIN=${TAKSA_HOST_IP}
+      - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT},http://${TAKSA_HOST_IP}:${KRATOS_ADMIN_PORT},http://${TAKSA_HOST_IP}:${OATHKEEPER_PROXY_PORT},http://localhost:3000
+      - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/
+      - SELFSERVICE_ALLOWED_RETURN_URLS=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT},http://${TAKSA_HOST_IP}:${KRATOS_ADMIN_PORT},http://localhost:3000
+      - SELFSERVICE_FLOWS_ERROR_UI_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/error
+      - SELFSERVICE_FLOWS_SETTINGS_UI_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/settings
+      - SELFSERVICE_FLOWS_RECOVERY_UI_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/recovery
+      - SELFSERVICE_FLOWS_LOGIN_UI_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/login
+      - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=http://${TAKSA_HOST_IP}:${KRATOS_PUBLIC_PORT}/registration
+    
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
@@ -56,10 +69,13 @@ services:
     image: oryd/oathkeeper:v0.40
     container_name: taksa-oathkeeper
     ports:
-      - '4457:4455'
-      - '4456:4456'
+      - "${OATHKEEPER_PROXY_PORT}:4455"
+      - "${OATHKEEPER_API_PORT}:4456"
     environment:
       - AUTHENTICATORS_BEARER_TOKEN_CONFIG_CHECK_SESSION_URL=http://taksa-kratos:4433/sessions/whoami
+      - AUTHENTICATORS_COOKIE_SESSION_CONFIG_CHECK_SESSION_URL=http://taksa-kratos:4433/sessions/whoami
+      - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=http://${TAKSA_HOST_IP}:${OATHKEEPER_PROXY_PORT}
+    
     command: serve -c /etc/config/oathkeeper/oathkeeper.yml
     volumes:
       - ../config/ory-stack/oathkeeper:/etc/config/oathkeeper

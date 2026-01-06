@@ -41,8 +41,7 @@ mutators:
   id_token:
     enabled: true
     config:
-      issuer_url: http://172.25.60.23:4455
+      # issuer_url: http://172.25.60.23:4455
       jwks_url: file:///etc/config/oathkeeper/id_token.jwks.json
       ttl: 1h
-      # ERROR 2 FIX: Note the single quotes below!
       claims: '{"sub": "{{ .Subject }}", "email": "{{ .Extra.identity.traits.email }}"}'
