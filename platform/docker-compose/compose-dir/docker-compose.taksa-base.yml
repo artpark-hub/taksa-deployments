@@ -129,6 +129,41 @@ services:
       - ../config/nats/nats-server.conf:/config/nats-server.conf:ro
       - taksa-nats-data:/data
 
+  taksa-apigateway:
+    #image: haproxy:3.2-alpine
+    image: haproxy:3.2
+    container_name: taksa-apigateway
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8404:8404"
+    volumes:
+      - ../config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      #- ../config/haproxy/entrypoint.sh:/entrypoint.sh
+      - ../config/haproxy/errors:/usr/local/etc/haproxy/errors:ro
+      - ../config/certs:/usr/local/etc/haproxy/certs:ro
+    environment:
+      - OATHKEEPER_HOST=taksa-oathkeeper
+      - OATHKEEPER_PORT=4455
+      - BACKEND_HOST=taksa-ui
+      - BACKEND_PORT=8080
+    networks:
+      - taksa-network
+    depends_on:
+      - taksa-oathkeeper
+    restart: unless-stopped
+    #entrypoint: ["/bin/sh", "/entrypoint.sh"]
+
+  taksa-ui:
+    image: nginx:alpine
+    container_name: taksa-ui
+    volumes:
+      - ../tests/test-ui/index.html:/usr/share/nginx/html/index.html:ro
+      - ../tests/test-ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - taksa-network
+    restart: unless-stopped
+
 volumes:
   taksa-ory-data:
    driver_opts:
