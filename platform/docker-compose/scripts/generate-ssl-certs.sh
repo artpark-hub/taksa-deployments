@@ -72,8 +72,8 @@ openssl x509 -req -in "$CERT_DIR/server.csr" \
 
 cat "$CERT_DIR/server.crt" "$CERT_DIR/server.key" > "$CERT_DIR/server.pem"
 
-chmod 600 "$CERT_DIR/server.key" "$CERT_DIR/server.pem"
-chmod 644 "$CERT_DIR/server.crt"
+chmod 600 "$CERT_DIR/server.key"
+chmod 644 "$CERT_DIR/server.crt" "$CERT_DIR/server.pem"
 
 echo -e "${GREEN}✓ SSL certificates generated!${NC}"
 openssl x509 -in "$CERT_DIR/server.crt" -noout -subject -dates
