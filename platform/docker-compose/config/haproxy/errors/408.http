@@ -1,0 +1,6 @@
+HTTP/1.1 408 Request Timeout
+Content-Type: application/json
+Cache-Control: no-cache
+Connection: close
+
+{"error":"request timeout","code":408,"message":"Request Timeout"}

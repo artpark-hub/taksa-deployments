@@ -1,0 +1,6 @@
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+Cache-Control: no-cache
+Connection: close
+
+{"error":"forbidden","code":403,"message":"Forbidden"}

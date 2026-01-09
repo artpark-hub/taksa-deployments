@@ -14,7 +14,8 @@ Before running the services for the first time, you need to create the persisten
 make init
 ```
 
-*Note: This creates the `/datadrive/taksa/postgres` directory. Ensure you have the necessary permissions or run with `sudo` if required.*
+*Note: This creates the `/datadrive/taksa/data/` directory. Ensure you have the necessary permissions or run with `sudo` if required.
+       It also creates self-signed certs in 'config/certs' directory for the $TAKSA_DOMAIN*
 
 ### 2. Starting the Services
 
