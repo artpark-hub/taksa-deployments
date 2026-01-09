@@ -2,14 +2,11 @@ version: v1.2.0
 # dsn: postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
 serve:
   public:
-    # base_url: http://172.25.60.23:4433/
+    # base_url: defined in the environment
     cors:
       enabled: true
       # allowed_origins:
-      #   - http://172.25.60.23:4433
-      #   - http://172.25.60.23:4434
-      #   - http://172.25.60.23:4457
-      #   - http://localhost:3000
+      #   - defined in the environment
       allowed_methods:
         - POST
         - GET
@@ -26,13 +23,11 @@ serve:
         - Set-Cookie
       allow_credentials: true
   # admin:
-  #   base_url: http://172.25.60.23:4434/
+  #   base_url: defined in the environment
 selfservice:
-  # default_browser_return_url: http://172.25.60.23:4433/
+  # default_browser_return_url: defined in the environment
   # allowed_return_urls:
-  #   - http://172.25.60.23:4433
-  #   - http://172.25.60.23:4434
-  #   - http://localhost:3000
+  #   - defined in the environment
   methods:
     password:
       enabled: true
@@ -42,21 +37,21 @@ selfservice:
         identifier_similarity_check_enabled: false
   flows:
     # error:
-    #   ui_url: http://172.25.60.23:4433/error
+    #   ui_url: defined in the environment
     settings:
-      # ui_url: http://172.25.60.23:4433/settings
+      # ui_url: defined in the environment
       privileged_session_max_age: 15m
     recovery:
       enabled: true
-      # ui_url: http://172.25.60.23:4433/recovery
+      # ui_url: defined in the environment
     verification:
       enabled: false
     login:
-      # ui_url: http://172.25.60.23:4433/login
+      # ui_url: defined in the environment
       lifespan: 10m
     registration:
       lifespan: 10m
-      # ui_url: http://172.25.60.23:4433/registration
+      # ui_url: defined in the environment
       after:
         password:
           hooks:
@@ -83,7 +78,7 @@ identity:
       url: file:///etc/config/kratos/identity.schema.json
 session:
   cookie:
-    domain: 172.25.60.23
+    #domain: defined in the environment
     path: /
     same_site: Lax
   lifespan: 24h

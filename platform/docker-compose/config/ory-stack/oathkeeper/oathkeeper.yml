@@ -16,7 +16,7 @@ authenticators:
   bearer_token:
     enabled: true
     config:
-      check_session_url: http://kratos:4433/sessions/whoami
+      check_session_url: http://taksa-kratos:4433/sessions/whoami
       preserve_path: true
       extra_from: "@this"
       subject_from: "identity.id"
@@ -26,7 +26,7 @@ authenticators:
   cookie_session:
     enabled: true
     config:
-      check_session_url: http://kratos:4433/sessions/whoami
+      check_session_url: http://taksa-kratos:4433/sessions/whoami
       preserve_path: true
       extra_from: "@this"
       subject_from: "identity.id"
@@ -41,7 +41,6 @@ mutators:
   id_token:
     enabled: true
     config:
-      # issuer_url: http://172.25.60.23:4455
       jwks_url: file:///etc/config/oathkeeper/id_token.jwks.json
       ttl: 1h
       claims: '{"sub": "{{ .Subject }}", "email": "{{ .Extra.identity.traits.email }}"}'
