@@ -28,3 +28,5 @@ logs: ## Follow container logs
 clean: ## Remove the stack and delete data directories
 	./taksa-stack-management.sh down -v
 	sudo rm -rf /datadrive/taksa/data
+	rm -rf config/certs/
+	rm -f taksa.env
