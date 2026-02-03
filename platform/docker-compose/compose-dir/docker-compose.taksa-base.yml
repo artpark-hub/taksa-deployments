@@ -72,7 +72,6 @@ services:
       - "${OATHKEEPER_API_PORT}:4456"
     environment:
       - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
-    
     command: serve -c /etc/config/oathkeeper/oathkeeper.yml
     volumes:
       - ../config/ory-stack/oathkeeper:/etc/config/oathkeeper
@@ -81,6 +80,8 @@ services:
     restart: unless-stopped
     depends_on:
       - taksa-kratos
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   taksa-mailslurper:
     image: oryd/mailslurper:latest-smtps
@@ -122,12 +123,13 @@ services:
     environment:
       - NATS_SYS_USER=${TAKSA_NATS_SYS_USER}
       - NATS_SYS_PASSWORD=${TAKSA_NATS_SYS_PASSWORD}
+      - NATS_APP_USER=${TAKSA_NATS_APP_USER}
+      - NATS_APP_PASSWORD=${TAKSA_NATS_APP_PASSWORD}
     volumes:
       - ../config/nats/nats-server.conf:/config/nats-server.conf:ro
       - taksa-nats-data:/data
 
   taksa-apigateway:
-    #image: haproxy:3.2-alpine
     image: haproxy:3.2
     container_name: taksa-apigateway
     ports:
@@ -136,14 +138,8 @@ services:
       - "8404:8404"
     volumes:
       - ../config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-      #- ../config/haproxy/entrypoint.sh:/entrypoint.sh
       - ../config/haproxy/errors:/usr/local/etc/haproxy/errors:ro
       - ../config/certs:/usr/local/etc/haproxy/certs:ro
-    environment:
-      - OATHKEEPER_HOST=taksa-oathkeeper
-      - OATHKEEPER_PORT=4455
-      - BACKEND_HOST=taksa-ui
-      - BACKEND_PORT=8080
     networks:
       - taksa-network
     depends_on:
