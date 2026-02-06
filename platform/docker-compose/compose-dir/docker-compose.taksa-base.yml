@@ -1,15 +1,15 @@
 services:
-  taksa-ory-db:
+  taksa-pg-db:
     image: postgres:18
-    container_name: taksa-ory-db
+    container_name: taksa-pg-db
     ports:
-      - "${KRATOS_PG_PORT}:5432"
+      - "${TAKSA_PG_PORT}:5432"
     environment:
-      - POSTGRES_USER=${KRATOS_PG_USER}
-      - POSTGRES_PASSWORD=${KRATOS_PG_PASSWORD}
-      - POSTGRES_DB=${KRATOS_PG_DB}
+      - POSTGRES_USER=${TAKSA_PG_USER}
+      - POSTGRES_PASSWORD=${TAKSA_PG_PASSWORD}
+      - POSTGRES_DB=${TAKSA_PG_DB}
     volumes:
-      - taksa-ory-data:/var/lib/postgresql
+      - taksa-pg-data:/var/lib/postgresql
     networks:
       - taksa-network
     restart: unless-stopped
