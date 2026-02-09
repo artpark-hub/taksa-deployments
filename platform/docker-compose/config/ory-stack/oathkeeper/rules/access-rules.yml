@@ -1,50 +1,111 @@
-- id: protected
+# Public endpoint - Master user registration 
+- id: register_master
   match:
-    url: http://172.25.60.23:4457/<.*>
-    methods:
-      - GET
+    url: <http|https>://<.*>/api/v1/um/master_user
+    methods: [POST]
   authenticators:
-    - handler: bearer_token
-    - handler: cookie_session
+    - handler: noop
   authorizer:
     handler: allow
   mutators:
-    - handler: id_token
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://host.docker.internal:8080
+
+# Token exchange endpoint - Returns JWT token
+- id: get_jwt_token
+  match:
+    url: <http|https>://<.*>/api/v1/um/token
+    methods: [GET]
+  authenticators:
+    - handler: bearer_token  
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token      
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://host.docker.internal:8080
+
+# Protected endpoint - Sub-user creation (requires JWT bearer token)
+- id: create_sub_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/user
+    methods: [POST]
+  authenticators:
+
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://host.docker.internal:8080
+
+# Protected endpoint - List Sub-users 
+- id: list_sub_users
+  match:
+    url: <http|https>://<.*>/api/v1/um/users
+    methods: [GET]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://host.docker.internal:8080
+
+# Protected endpoint - Delete Sub-users 
+- id: delete_sub_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/user/<.*>
+    methods: [DELETE]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://host.docker.internal:8080
+
+# KRATOS PUBLIC API (Recovery, Settings, Verification, Login/Register Flows)
+- id: kratos_public
+  match:
+    url: <http|https>://<.*>/self-service/<.*>
+    methods: [GET, POST, PUT, PATCH, DELETE]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
   upstream:
     preserve_host: true
-    url: "http://httpbin.org"
+    strip_path: "" 
+    url: http://taksa-kratos:4433  
 
-# - id: tracablity
-#   match:
-#     url: http://172.25.60.23:4457/api/tracablity/v1/*
-#     methods:
-#       - GET
-#   authenticators:
-#     - handler: bearer_token
-#     - handler: cookie_session
-#   authorizer:
-#     handler: allow
-#   mutators:
-#     - handler: id_token
-#   upstream:
-#     preserve_host: true
-# #    strip_path: /dummyserver   # <--- ADD THIS LINE
-#     url: "http://172.25.60.23:8000/${request.path}"
-
-# - id: public
-#   match:
-#     url: http://172.25.60.23:4457/signup
-#     methods:
-#       - GET
-#   authenticators:
-#     - handler: bearer_token
-#     - handler: cookie_session
-#   authorizer:
-#     handler: allow
-#   mutators:
-#     - handler: id_token
-#   upstream:
-#     preserve_host: true
-#     strip_path: /dummyserver   # <--- ADD THIS LINE
-#     url: "http://172.25.60.23:8000"
-# # 
+# KRATOS SCHEMAS 
+- id: kratos_schemas
+  match:
+    url: <http|https>://<.*>/schemas/<.*>
+    methods: [GET]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: true
+    url: http://taksa-kratos:4433

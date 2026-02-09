@@ -7,12 +7,16 @@ serve:
 log:
   level: debug
   format: text
-
+  leak_sensitive_values: true
+  
 access_rules:
   repositories:
     - file:///etc/config/oathkeeper/rules/access-rules.yml
 
 authenticators:
+  noop:
+    enabled: true
+    
   bearer_token:
     enabled: true
     config:
@@ -21,7 +25,7 @@ authenticators:
       extra_from: "@this"
       subject_from: "identity.id"
       token_from:
-        header: Authorization
+        header: Authorization  
 
   cookie_session:
     enabled: true
@@ -38,9 +42,19 @@ authorizers:
     enabled: true
 
 mutators:
+  noop:
+    enabled: true
+
   id_token:
     enabled: true
     config:
       jwks_url: file:///etc/config/oathkeeper/id_token.jwks.json
       ttl: 1h
-      claims: '{"sub": "{{ .Subject }}", "email": "{{ .Extra.identity.traits.email }}"}'
+      claims: |
+        {
+          "sub": "{{ .Subject }}",
+          "email": "{{ .Extra.identity.traits.email }}",
+          "role": "{{ .Extra.identity.traits.role }}",
+          "organization_name": "{{ .Extra.identity.traits.organization_name }}"
+        }
+

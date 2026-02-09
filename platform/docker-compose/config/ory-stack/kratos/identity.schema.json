@@ -32,9 +32,30 @@
               "title": "Last Name"
             }
           }
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "master",
+            "admin",
+            "member",
+            "sub"
+          ],
+          "title": "User Role",
+          "description": "Role of the user within the organization",
+          "default": "sub"
+        },
+        "organization_name": {
+          "type": "string",
+          "title": "Organization Name",
+          "description": "The organization this user belongs to",
+          "minLength": 1
         }
       },
-      "required": ["email"],
+      "required": [
+        "email",
+        "organization_name"
+      ],
       "additionalProperties": false
     }
   }
