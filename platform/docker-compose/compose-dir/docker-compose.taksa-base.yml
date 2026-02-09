@@ -30,7 +30,7 @@ services:
     networks:
       - taksa-network
     depends_on:
-      taksa-ory-db:
+      taksa-pg-db:
         condition: service_healthy
 
   taksa-kratos:
@@ -164,7 +164,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  taksa-ory-data:
+  taksa-pg-data:
     driver_opts:
       type: 'none'
       o: 'bind'
