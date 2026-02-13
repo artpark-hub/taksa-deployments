@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # 1. YOUR API SERVICE
+  app-traceability:
+    build: ../../../../taksa-app-traceability
+    container_name: app-traceability
+    command: ["./traceability", "-conf", "/app/configs/config_docker.yaml"]
+    depends_on:
+      - taksa-tsdb
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    networks:
+      - taksa-network
+
+  # 2. YOUR TELEMETRY WORKER
+  platform-telemetry:
+    build: ../../../../taksa-platform-services/telemetry-service
+    container_name: platform-telemetry
+    entrypoint: ["/bin/sh", "-c", "sleep 5 && ./telemetry-service -conf /app/configs/config_docker.yaml"]
+    depends_on:
+      - taksa-tsdb
+      - taksa-nats
+    networks:
+      - taksa-network
+
+  # 3. YOUR AI MCP SERVICE
+  taksa-ai-mcp:
+    build:
+      context: ../../../../taksa-ai-mcp
+      dockerfile: Dockerfile
+    container_name: taksa-ai-mcp
+    restart: unless-stopped
+    depends_on:
+      - taksa-tsdb
+    networks:
+      - taksa-network
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=taksa-tsdb
+      - DB_PORT=5432
+      - DB_USER=taksa_ai_reader
+      - DB_PASSWORD=ai_safe_pass_2026
+      - DB_NAME=taksa
+      - DB_SSLMODE=disable
+
+  # 4. YOUR AI GATEWAY (CLEAN VERSION)
+  taksa-ai-gateway:
+    build:
+      context: ../../../../taksa-ai-gateway
+      dockerfile: Dockerfile
+    container_name: taksa-ai-gateway
+    restart: unless-stopped
+    depends_on:
+      - taksa-ai-mcp
+    networks:
+      - taksa-network
+    ports:
+      - "9090:9090"
+    environment:
+      - PORT=9090
+      - MCP_SERVER_URL=http://taksa-ai-mcp:8080/messages
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+
+networks:
+  taksa-network:
+    external: true
+    name: compose-dir_taksa-network

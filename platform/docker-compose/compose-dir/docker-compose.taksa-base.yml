@@ -23,7 +23,6 @@ services:
     image: oryd/kratos:v1.2.0
     environment:
       - DSN=${KRATOS_DSN}
-      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
@@ -42,7 +41,6 @@ services:
     environment:
       - DSN=${KRATOS_DSN}
       - LOG_LEVEL=debug
-      # all these urls below were set in the config file but now as we are using emv vard we initialize them here rather then im the config file 
       - SERVE_PUBLIC_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/
       - SERVE_ADMIN_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT}/
       - SESSION_COOKIE_DOMAIN=${TAKSA_DOMAIN}
@@ -54,7 +52,6 @@ services:
       - SELFSERVICE_FLOWS_RECOVERY_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/recovery
       - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/login
       - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/registration
-
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
@@ -72,7 +69,6 @@ services:
       - "${OATHKEEPER_API_PORT}:4456"
     environment:
       - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
-
     command: serve -c /etc/config/oathkeeper/oathkeeper.yml
     volumes:
       - ../config/ory-stack/oathkeeper:/etc/config/oathkeeper
@@ -127,9 +123,10 @@ services:
     volumes:
       - ../config/nats/nats-server.conf:/config/nats-server.conf:ro
       - taksa-nats-data:/data
+    networks:                 # <--- THIS WAS MISSING!
+      - taksa-network         # <--- NOW IT IS FIXED!
 
   taksa-apigateway:
-    #image: haproxy:3.2-alpine
     image: haproxy:3.2
     container_name: taksa-apigateway
     ports:
@@ -138,7 +135,6 @@ services:
       - "8404:8404"
     volumes:
       - ../config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-      #- ../config/haproxy/entrypoint.sh:/entrypoint.sh
       - ../config/haproxy/errors:/usr/local/etc/haproxy/errors:ro
       - ../config/certs:/usr/local/etc/haproxy/certs:ro
     environment:
@@ -151,7 +147,6 @@ services:
     depends_on:
       - taksa-oathkeeper
     restart: unless-stopped
-    #entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
   taksa-ui:
     image: nginx:alpine
