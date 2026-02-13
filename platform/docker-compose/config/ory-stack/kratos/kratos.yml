@@ -18,12 +18,15 @@ serve:
         - Cookie
         - Content-Type
         - X-Session-Token
+        - X-CSRF-Token
       exposed_headers:
         - Content-Type
         - Set-Cookie
+        - X-CSRF-Token
       allow_credentials: true
   # admin:
   #   base_url: defined in the environment
+
 selfservice:
   # default_browser_return_url: defined in the environment
   # allowed_return_urls:
@@ -56,26 +59,32 @@ selfservice:
         password:
           hooks:
             - hook: session
+
 log:
   level: debug
   format: json
   leak_sensitive_values: true
+
 secrets:
   cookie:
     - 0123456789abcdef0123456789abcdef
   cipher:
     - a3f9c8e21d4b5678a9c0e123f456789b
+
 ciphers:
   algorithm: xchacha20-poly1305
+
 hashers:
   algorithm: bcrypt
   bcrypt:
     cost: 8
+
 identity:
   default_schema_id: default
   schemas:
     - id: default
       url: file:///etc/config/kratos/identity.schema.json
+
 session:
   cookie:
     #domain: defined in the environment
@@ -85,9 +94,13 @@ session:
   earliest_possible_extend: 1h
   whoami:
     required_aal: aal1
+
 courier:
   smtp:
     connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
 
+# CSRF Configuration for browser-based flows
+cookies:
+  same_site: Lax
 
 # all the urls are commented out as i have already set them in the environment part of docker-compose file
