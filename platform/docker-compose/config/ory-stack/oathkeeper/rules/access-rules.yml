@@ -12,7 +12,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 # Token exchange endpoint - Returns JWT token (supports both bearer token and cookie)
 - id: get_jwt_token
@@ -29,7 +29,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 # Protected endpoint - Sub-user creation (requires JWT bearer token)
 - id: create_sub_user
@@ -46,7 +46,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 # Protected endpoint - List Sub-users 
 - id: list_sub_users
@@ -63,7 +63,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 # Protected endpoint - Delete Sub-users 
 - id: delete_sub_user
@@ -80,7 +80,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 - id: delete_master_user
   match:
@@ -96,7 +96,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 # KRATOS PUBLIC API (Recovery, Settings, Verification, Login/Register Flows)
 - id: kratos_public
@@ -128,7 +128,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://host.docker.internal:8083
 
 # KRATOS SCHEMAS 
 - id: kratos_schemas
