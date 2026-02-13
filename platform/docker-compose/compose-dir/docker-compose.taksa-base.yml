@@ -97,12 +97,14 @@ services:
   taksa-tsdb:
     image: timescale/timescaledb:latest-pg18
     container_name: taksa-tsdb
+    command: -p ${TSDB_PG_PORT}
     ports:
-      - "${TSDB_PG_PORT}:5432"
+      - "${TSDB_PG_PORT}:${TSDB_PG_PORT}"
     environment:
       - POSTGRES_USER=${TSDB_PG_USER}
       - POSTGRES_PASSWORD=${TSDB_PG_PASSWORD}
       - POSTGRES_DB=${TSDB_PG_DB}
+      - PGPORT=${TSDB_PG_PORT}
     volumes:
       - taksa-ts-data:/var/lib/postgresql
       - ../config/database/schemas:/docker-entrypoint-initdb.d:ro
