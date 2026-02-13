@@ -5,6 +5,7 @@ serve:
       enabled: true
       allowed_origins:
         - "http://172.25.60.23:5173"
+        - "http://172.25.60.33:5173"
       allowed_methods:
         - POST
         - GET
