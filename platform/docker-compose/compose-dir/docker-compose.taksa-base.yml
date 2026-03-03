@@ -145,7 +145,7 @@ services:
       - OATHKEEPER_HOST=taksa-oathkeeper
       - OATHKEEPER_PORT=4455
       - BACKEND_HOST=taksa-ui
-      - BACKEND_PORT=8080
+      - BACKEND_PORT=${TAKSA_UI_PORT}
     networks:
       - taksa-network
     depends_on:
@@ -154,11 +154,12 @@ services:
     #entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
   taksa-ui:
-    image: nginx:alpine
+    image: taksa-ui:latest
     container_name: taksa-ui
-    volumes:
-      - ../tests/test-ui/index.html:/usr/share/nginx/html/index.html:ro
-      - ../tests/test-ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${TAKSA_UI_PORT}:3000"
+    environment:
+      - NODE_ENV=production
     networks:
       - taksa-network
     restart: unless-stopped
