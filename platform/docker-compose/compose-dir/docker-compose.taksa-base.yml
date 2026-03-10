@@ -164,6 +164,29 @@ services:
       - taksa-network
     restart: unless-stopped
 
+  taksa-grafana:
+    image: grafana/grafana:latest
+    container_name: taksa-grafana
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://${TAKSA_DOMAIN}/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - taksa-grafana-data:/var/lib/grafana
+    networks:
+      - taksa-network
+    restart: unless-stopped
+    depends_on:
+      taksa-tsdb:
+        condition: service_healthy
+
 volumes:
   taksa-pg-data:
     driver_opts:
@@ -180,6 +203,11 @@ volumes:
       type: 'none'
       o: 'bind'
       device: '${TAKSA_DATADIR}/taksa/data/nats-data'
+  taksa-grafana-data:
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${TAKSA_DATADIR}/taksa/data/grafana'
 
 networks:
   taksa-network:
