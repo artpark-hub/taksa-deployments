@@ -38,6 +38,11 @@ selfservice:
         haveibeenpwned_enabled: false
         min_password_length: 8
         identifier_similarity_check_enabled: false
+# Enable recovery via email link
+    link:
+      enabled: true
+      config:
+        lifespan: 1h
   flows:
     # error:
     #   ui_url: defined in the environment
@@ -47,6 +52,11 @@ selfservice:
     recovery:
       enabled: true
       # ui_url: defined in the environment
+      # Recovery flow configuration
+      lifespan: 1h
+      use: code
+      after:
+        default_browser_return_url: https://localcontroller.taksa-os.manufacturing:4457/
     verification:
       enabled: false
     login:
@@ -95,9 +105,10 @@ session:
   whoami:
     required_aal: aal1
 
-courier:
-  smtp:
-    connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
+# REMOVED: SMTP configuration moved to environment variables
+# courier:
+#   smtp:
+#     connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
 
 # CSRF Configuration for browser-based flows
 cookies:

@@ -25,7 +25,6 @@ services:
     image: oryd/kratos:v1.2.0
     environment:
       - DSN=${KRATOS_DSN}
-      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
@@ -42,26 +41,33 @@ services:
       - "${KRATOS_PUBLIC_PORT}:4433"
       - "${KRATOS_ADMIN_PORT}:4434"
     environment:
-      - DSN=${KRATOS_DSN}
-      - LOG_LEVEL=debug
-      # all these urls below were set in the config file but now as we are using emv vard we initialize them here rather then im the config file 
-      - SERVE_PUBLIC_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/
-      - SERVE_ADMIN_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT}/
-      - SESSION_COOKIE_DOMAIN=${TAKSA_DOMAIN}
-      - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT},http://localhost:5173,http://172.25.60.23:5173,http://172.25.60.33:5173
-      - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/,http://localhost:5173,http://172.25.60.23:5173,http://172.25.60.33:5173
-      - SELFSERVICE_ALLOWED_RETURN_URLS=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},http://localhost:3000,http://localhost:5173,http://172.25.60.23:5173,http://172.25.60.33:5173
-      - SELFSERVICE_FLOWS_ERROR_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/error,http://localhost:5173,http://172.25.60.23:5173,http://172.25.60.33:5173
-      - SELFSERVICE_FLOWS_SETTINGS_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/settings
-      - SELFSERVICE_FLOWS_RECOVERY_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/recovery
-      - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/login
-      - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/registration
-    
+    - DSN=${KRATOS_DSN}
+    - LOG_LEVEL=debug
+    # Base URLs
+    - SERVE_PUBLIC_BASE_URL=http://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/
+    - SERVE_ADMIN_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT}/
+    - SESSION_COOKIE_DOMAIN=${TAKSA_DOMAIN}
+    # CORS
+    - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=${UI_BASE_URL},https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
+    # Self-service URLs
+    - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=${UI_BASE_URL}
+    - SELFSERVICE_ALLOWED_RETURN_URLS=${UI_BASE_URL},http://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT}
+    - SELFSERVICE_FLOWS_ERROR_UI_URL=http://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/error
+    - SELFSERVICE_FLOWS_SETTINGS_UI_URL=${CORS_ALLOWED_ORIGINS}/reset-password
+    - SELFSERVICE_FLOWS_RECOVERY_UI_URL=${CORS_ALLOWED_ORIGINS}/recovery
+    - SELFSERVICE_FLOWS_LOGIN_UI_URL=${UI_BASE_URL}/login
+    - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=${UI_BASE_URL}/registration
+    # NEW: SMTP Configuration for Email Recovery
+    - COURIER_SMTP_CONNECTION_URI=${SMTP_CONNECTION_URI}
+    - COURIER_SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS}
+    - COURIER_SMTP_FROM_NAME=${SMTP_FROM_NAME}
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
     networks:
-      - taksa-network
+      taksa-network:
+        aliases:
+          - kratos
     restart: unless-stopped
     depends_on:
       - kratos-migrate
@@ -73,8 +79,17 @@ services:
       - "${OATHKEEPER_PROXY_PORT}:4455"
       - "${OATHKEEPER_API_PORT}:4456"
     environment:
+      - USER_SERVICE_URL=${USER_SERVICE_URL}
+      - UI_BASE_URL=${UI_BASE_URL}
+      - SERVE_PROXY_CORS_ENABLED=true
+      - SERVE_PROXY_CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - SERVE_PROXY_CORS_ALLOWED_METHODS=GET,POST,PUT,PATCH,DELETE
+      - SERVE_PROXY_CORS_ALLOWED_HEADERS=Authorization,Content-Type,X-Session-Token,Cookie
+      - SERVE_PROXY_CORS_EXPOSED_HEADERS=Content-Type
+      - SERVE_PROXY_CORS_ALLOW_CREDENTIALS=true
+      - SERVE_PROXY_CORS_DEBUG=true
       - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
-    command: serve -c /etc/config/oathkeeper/oathkeeper.yml
+    command: serve -c /etc/config/oathkeeper/oathkeeper.yml 
     volumes:
       - ../config/ory-stack/oathkeeper:/etc/config/oathkeeper
     networks:
@@ -84,6 +99,21 @@ services:
       - taksa-kratos
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    
+  taksa-user-services:
+    build:
+      context: ../../../../taksa-platform-services/user-management
+      dockerfile: Dockerfile
+    image: taksa-user-services:latest
+    container_name: taksa-user-services
+    ports:
+      - "8083:8083"
+    depends_on:
+      - taksa-kratos
+      - taksa-ory-db
+    networks:
+      - taksa-network
+    restart: unless-stopped
 
   taksa-mailslurper:
     image: oryd/mailslurper:latest-smtps
@@ -122,8 +152,8 @@ services:
     container_name: taksa-nats
     command: ["-c", "/config/nats-server.conf"]
     ports:
-      - "${TAKSA_NATS_SERVER_PORT}:4222" # Client port
-      - "${TAKSA_NATS_MONITOR_PORT}:8222" # HTTP Monitoring port
+      - "${TAKSA_NATS_SERVER_PORT}:4222"
+      - "${TAKSA_NATS_MONITOR_PORT}:8222"
     environment:
       - NATS_SYS_USER=${TAKSA_NATS_SYS_USER}
       - NATS_SYS_PASSWORD=${TAKSA_NATS_SYS_PASSWORD}
@@ -132,6 +162,8 @@ services:
     volumes:
       - ../config/nats/nats-server.conf:/config/nats-server.conf:ro
       - taksa-nats-data:/data
+    networks:
+      - taksa-network
 
   taksa-apigateway:
     image: haproxy:3.2
@@ -149,7 +181,6 @@ services:
     depends_on:
       - taksa-oathkeeper
     restart: unless-stopped
-    #entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
   taksa-ui:
     image: nginx:alpine

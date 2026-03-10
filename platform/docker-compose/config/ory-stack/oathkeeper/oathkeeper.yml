@@ -1,26 +1,6 @@
 serve:
   proxy:
     port: 4455
-    cors:
-      enabled: true
-      allowed_origins:
-        - "http://172.25.60.23:5173"
-        - "http://172.25.60.33:5173"
-      allowed_methods:
-        - POST
-        - GET
-        - PUT
-        - PATCH
-        - DELETE
-      allowed_headers:
-        - Authorization
-        - Content-Type
-        - X-Session-Token
-        - Cookie
-      exposed_headers:
-        - Content-Type
-      allow_credentials: true
-      debug: true
   api:
     port: 4456
 
