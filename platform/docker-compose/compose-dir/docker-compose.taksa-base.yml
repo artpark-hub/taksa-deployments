@@ -145,7 +145,7 @@ services:
       - OATHKEEPER_HOST=taksa-oathkeeper
       - OATHKEEPER_PORT=4455
       - BACKEND_HOST=taksa-ui
-      - BACKEND_PORT=${TAKSA_UI_PORT}
+      - BACKEND_PORT=3000
     networks:
       - taksa-network
     depends_on:
@@ -157,7 +157,7 @@ services:
     image: taksa-ui:latest
     container_name: taksa-ui
     ports:
-      - "${TAKSA_UI_PORT}:3000"
+      - "127.0.0.1:${TAKSA_UI_PORT}:3000"
     environment:
       - NODE_ENV=production
     networks:
