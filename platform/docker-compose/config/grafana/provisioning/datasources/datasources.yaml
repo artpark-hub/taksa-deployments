@@ -1,0 +1,32 @@
+apiVersion: 1
+
+datasources:
+
+  - name: Taksa-App-DB
+    type: postgres
+    access: proxy
+    url: taksa-pg-db:5432
+    database: ${POSTGRES_DB}
+    user: ${POSTGRES_USER}
+    secureJsonData:
+      password: ${POSTGRES_PASSWORD}
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: false
+    isDefault: false
+
+  - name: Taksa-TSDB
+    type: postgres
+    access: proxy
+    url: taksa-tsdb:5432
+    database: ${TSDB_PG_DB}
+    user: ${TSDB_PG_USER}
+    secureJsonData:
+      password: ${TSDB_PG_PASSWORD}
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: true
+    isDefault: true
+
