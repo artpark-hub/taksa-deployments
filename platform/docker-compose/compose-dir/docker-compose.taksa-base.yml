@@ -184,7 +184,7 @@ services:
 
     volumes:
       - taksa-grafana-data:/var/lib/grafana
-      - ../config/grafana/provisioning:/etc/grafana/provisioning
+      - ../config/grafana/provisioning:/etc/grafana/provisioning:ro
 
     networks:
       - taksa-network
