@@ -35,7 +35,7 @@ selfservice:
         haveibeenpwned_enabled: false
         min_password_length: 8
         identifier_similarity_check_enabled: false 
-    # Enable recovery via email link
+    # Enable recovery via otp
     link:
       enabled: true
       config:
