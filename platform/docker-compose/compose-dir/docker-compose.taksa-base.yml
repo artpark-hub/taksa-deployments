@@ -43,18 +43,22 @@ services:
       - DSN=${KRATOS_DSN}
       - LOG_LEVEL=debug
       # all these urls below were set in the config file but now as we are using emv vard we initialize them here rather then im the config file 
-      - SERVE_PUBLIC_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/
-      - SERVE_ADMIN_BASE_URL=https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT}/
+      # Base URLs set to placeholder, HAProxy will inject X-Forwarded-* headers
+      - SERVE_PUBLIC_BASE_URL=https://placeholder/
+      - SERVE_ADMIN_BASE_URL=https://placeholder/
       - SESSION_COOKIE_DOMAIN=${TAKSA_DOMAIN}
       - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT},http://localhost:3000
       - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/
       - SELFSERVICE_ALLOWED_RETURN_URLS=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},http://localhost:3000
       - SELFSERVICE_FLOWS_ERROR_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/error
-      - SELFSERVICE_FLOWS_SETTINGS_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/settings
-      - SELFSERVICE_FLOWS_RECOVERY_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/recovery
-      - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/login
-      - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT}/registration
-
+      - SELFSERVICE_FLOWS_SETTINGS_UI_URL=/reset-password
+      - SELFSERVICE_FLOWS_RECOVERY_UI_URL=/recovery
+      - SELFSERVICE_FLOWS_LOGIN_UI_URL=/login
+      - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=/registration
+      # SMTP Configuration for Email Recovery
+      - COURIER_SMTP_CONNECTION_URI=${SMTP_CONNECTION_URI}
+      - COURIER_SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS}
+      - COURIER_SMTP_FROM_NAME=${SMTP_FROM_NAME}
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
@@ -68,7 +72,7 @@ services:
     image: oryd/oathkeeper:v0.40
     container_name: taksa-oathkeeper
     ports:
-      - "${OATHKEEPER_PROXY_PORT}:4455"
+      - "${OATHKEEPER_PROXY_PORT}:4457"
       - "${OATHKEEPER_API_PORT}:4456"
     environment:
       - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
@@ -143,7 +147,7 @@ services:
       - ../config/certs:/usr/local/etc/haproxy/certs:ro
     environment:
       - OATHKEEPER_HOST=taksa-oathkeeper
-      - OATHKEEPER_PORT=4455
+      - OATHKEEPER_PORT=4457
       - BACKEND_HOST=taksa-ui
       - BACKEND_PORT=3000
     networks:
