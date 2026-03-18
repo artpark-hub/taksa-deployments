@@ -92,9 +92,4 @@ session:
   earliest_possible_extend: 1h
   whoami:
     required_aal: aal1
-    
-cookies:
-  same_site: Lax
-
-
 # all the urls are commented out as i have already set them in the environment part of docker-compose file
