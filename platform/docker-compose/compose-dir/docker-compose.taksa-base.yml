@@ -2,8 +2,6 @@ services:
   taksa-pg-db:
     image: postgres:18
     container_name: taksa-pg-db
-    ports:
-      - "${TAKSA_PG_PORT}:5432"
     environment:
       - POSTGRES_USER=${TAKSA_PG_USER}
       - POSTGRES_PASSWORD=${TAKSA_PG_PASSWORD}
@@ -36,9 +34,6 @@ services:
   taksa-kratos:
     image: oryd/kratos:v1.2.0
     container_name: taksa-kratos
-    ports:
-      - "${KRATOS_PUBLIC_PORT}:4433"
-      - "${KRATOS_ADMIN_PORT}:4434"
     environment:
       - DSN=${KRATOS_DSN}
       - LOG_LEVEL=debug
@@ -71,9 +66,6 @@ services:
   taksa-oathkeeper:
     image: oryd/oathkeeper:v0.40
     container_name: taksa-oathkeeper
-    ports:
-      - "${OATHKEEPER_PROXY_PORT}:4457"
-      - "${OATHKEEPER_API_PORT}:4456"
     environment:
       - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
 
@@ -89,17 +81,12 @@ services:
   taksa-mailslurper:
     image: oryd/mailslurper:latest-smtps
     container_name: taksa-mailslurper
-    ports:
-      - '4436:4436'
-      - '4437:4437'
     networks:
       - taksa-network
 
   taksa-tsdb:
     image: timescale/timescaledb:latest-pg18
     container_name: taksa-tsdb
-    ports:
-      - "${TSDB_PG_PORT}:5432"
     environment:
       - POSTGRES_USER=${TSDB_PG_USER}
       - POSTGRES_PASSWORD=${TSDB_PG_PASSWORD}
@@ -133,7 +120,6 @@ services:
       - taksa-nats-data:/data
 
   taksa-apigateway:
-    #image: haproxy:3.2-alpine
     image: haproxy:3.2
     container_name: taksa-apigateway
     ports:
@@ -142,7 +128,6 @@ services:
       - "8404:8404"
     volumes:
       - ../config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-      #- ../config/haproxy/entrypoint.sh:/entrypoint.sh
       - ../config/haproxy/errors:/usr/local/etc/haproxy/errors:ro
       - ../config/certs:/usr/local/etc/haproxy/certs:ro
     environment:
@@ -155,13 +140,10 @@ services:
     depends_on:
       - taksa-oathkeeper
     restart: unless-stopped
-    #entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
   taksa-ui:
     image: taksa-ui:latest
     container_name: taksa-ui
-    ports:
-      - "127.0.0.1:${TAKSA_UI_PORT}:3000"
     environment:
       - NODE_ENV=production
     networks:
@@ -171,8 +153,8 @@ services:
   taksa-grafana:
     image: grafana/grafana:latest
     container_name: taksa-grafana
-    ports:
-      - "${GRAFANA_PORT}:3000"
+      #ports:
+      #- "${GRAFANA_PORT}:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
