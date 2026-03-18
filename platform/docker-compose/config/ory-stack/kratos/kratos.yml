@@ -34,7 +34,12 @@ selfservice:
       config:
         haveibeenpwned_enabled: false
         min_password_length: 8
-        identifier_similarity_check_enabled: false
+        identifier_similarity_check_enabled: false 
+    # Enable recovery via otp
+    link:
+      enabled: true
+      config:
+        lifespan: 1h
   flows:
     # error:
     #   ui_url: defined in the environment
@@ -44,6 +49,8 @@ selfservice:
     recovery:
       enabled: true
       # ui_url: defined in the environment
+      lifespan: 1h
+      use: code
     verification:
       enabled: false
     login:
@@ -85,9 +92,4 @@ session:
   earliest_possible_extend: 1h
   whoami:
     required_aal: aal1
-courier:
-  smtp:
-    connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
-
-
 # all the urls are commented out as i have already set them in the environment part of docker-compose file

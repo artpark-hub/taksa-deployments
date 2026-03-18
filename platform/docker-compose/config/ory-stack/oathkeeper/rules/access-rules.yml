@@ -1,8 +1,8 @@
 # Public endpoint - Master user registration 
 - id: register_master
   match:
-    url: <http|https>://<.*>/api/v1/um/master_user
-    methods: [POST]
+    url: <http|https>://<.*>/api/v1/um/register_master_user
+    methods: [POST, OPTIONS]
   authenticators:
     - handler: noop
   authorizer:
@@ -12,14 +12,15 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://taksa-user-services:8083
 
-# Token exchange endpoint - Returns JWT token
+# Token exchange endpoint - Returns JWT token (supports both bearer token and cookie)
 - id: get_jwt_token
   match:
     url: <http|https>://<.*>/api/v1/um/token
-    methods: [GET]
+    methods: [GET, OPTIONS]
   authenticators:
+    - handler: cookie_session
     - handler: bearer_token  
   authorizer:
     handler: allow
@@ -28,62 +29,112 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://taksa-user-services:8083
 
 # Protected endpoint - Sub-user creation (requires JWT bearer token)
 - id: create_sub_user
   match:
-    url: <http|https>://<.*>/api/v1/um/user
-    methods: [POST]
+    url: <http|https>://<.*>/api/v1/um/create_sub_user
+    methods: [POST, OPTIONS]
   authenticators:
-
-    - handler: noop
+    - handler: cookie_session
+    - handler: bearer_token
   authorizer:
     handler: allow
   mutators:
-    - handler: noop
+    - handler: id_token
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://taksa-user-services:8083
 
 # Protected endpoint - List Sub-users 
 - id: list_sub_users
   match:
-    url: <http|https>://<.*>/api/v1/um/users
-    methods: [GET]
+    url: <http|https>://<.*>/api/v1/um/list_all_users
+    methods: [GET, OPTIONS]
   authenticators:
-    - handler: noop
+    - handler: cookie_session
+    - handler: bearer_token
   authorizer:
     handler: allow
   mutators:
-    - handler: noop
+    - handler: id_token
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
-
+    url: http://taksa-user-services:8083
 # Protected endpoint - Delete Sub-users 
 - id: delete_sub_user
   match:
-    url: <http|https>://<.*>/api/v1/um/user/<.*>
-    methods: [DELETE]
+    url: <http|https>://<.*>/api/v1/um/delete_sub_user/<.*>
+    methods: [DELETE, OPTIONS]
   authenticators:
-    - handler: noop
+    - handler: cookie_session
+    - handler: bearer_token
   authorizer:
     handler: allow
   mutators:
-    - handler: noop
+    - handler: id_token
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://host.docker.internal:8080
+    url: http://taksa-user-services:8083
+# Protected endpoint - Delete Master-user
+- id: delete_master_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/delete_master_user/<.*>
+    methods: [DELETE, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-services:8083
+
+# Change Password - Keep session token (NO JWT conversion)
+- id: change_password
+  match:
+    url: <http|https>://<.*>/api/v1/um/change_password
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: bearer_token  
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop  
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-services:8083
+
+# Update Profile - Convert to JWT (need role for authorization)
+- id: update_profile
+  match:
+    url: <http|https>://<.*>/api/v1/um/update_profile
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token  
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-services:8083
 
 # KRATOS PUBLIC API (Recovery, Settings, Verification, Login/Register Flows)
 - id: kratos_public
   match:
     url: <http|https>://<.*>/self-service/<.*>
-    methods: [GET, POST, PUT, PATCH, DELETE]
+    methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
   authenticators:
     - handler: noop
   authorizer:
@@ -93,13 +144,61 @@
   upstream:
     preserve_host: true
     strip_path: "" 
-    url: http://taksa-kratos:4433  
+    url: http://taksa-kratos:4433
+
+# Login endpoint - No authentication needed
+- id: login_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/login
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-services:8083
+
+# Forgot Password - Public endpoint
+- id: forgot_password
+  match:
+    url: <http|https>://<.*>/api/v1/um/forgot_password
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-services:8083
+
+# Reset Password - Public endpoint
+- id: reset_password
+  match:
+    url: <http|https>://<.*>/api/v1/um/reset_password
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-services:8083
 
 # KRATOS SCHEMAS 
 - id: kratos_schemas
   match:
     url: <http|https>://<.*>/schemas/<.*>
-    methods: [GET]
+    methods: [GET, OPTIONS]
   authenticators:
     - handler: noop
   authorizer:
@@ -108,4 +207,5 @@
     - handler: noop
   upstream:
     preserve_host: true
+    strip_path: "" 
     url: http://taksa-kratos:4433
