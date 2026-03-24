@@ -67,7 +67,7 @@ services:
     image: oryd/oathkeeper:v0.40
     container_name: taksa-oathkeeper
     environment:
-      - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT}
+      - MUTATORS_ID_TOKEN_CONFIG_ISSUER_URL=https://${TAKSA_DOMAIN}
 
     command: serve -c /etc/config/oathkeeper/oathkeeper.yml
     volumes:
