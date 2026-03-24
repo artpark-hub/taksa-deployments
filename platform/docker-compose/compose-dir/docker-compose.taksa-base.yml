@@ -153,8 +153,8 @@ services:
   taksa-grafana:
     image: grafana/grafana:latest
     container_name: taksa-grafana
-      #ports:
-      #- "${GRAFANA_PORT}:3000"
+    #ports:
+    #- "${GRAFANA_PORT}:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
