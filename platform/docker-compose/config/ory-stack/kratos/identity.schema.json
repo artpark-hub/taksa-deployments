@@ -17,6 +17,9 @@
               "password": {
                 "identifier": true
               }
+            },
+            "recovery": {
+              "via": "email"
             }
           }
         },
@@ -35,12 +38,6 @@
         },
         "role": {
           "type": "string",
-          "enum": [
-            "master",
-            "admin",
-            "member",
-            "sub"
-          ],
           "title": "User Role",
           "description": "Role of the user within the organization",
           "default": "sub"
