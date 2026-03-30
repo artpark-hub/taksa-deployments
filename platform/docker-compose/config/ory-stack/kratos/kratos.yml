@@ -35,11 +35,6 @@ selfservice:
         haveibeenpwned_enabled: false
         min_password_length: 8
         identifier_similarity_check_enabled: false 
-    # Enable recovery via otp
-    link:
-      enabled: true
-      config:
-        lifespan: 1h
   flows:
     # error:
     #   ui_url: defined in the environment

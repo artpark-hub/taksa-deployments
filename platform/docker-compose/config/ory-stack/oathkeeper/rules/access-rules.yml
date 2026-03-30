@@ -97,22 +97,6 @@
     strip_path: ""
     url: http://taksa-user-services:8083
 
-# Change Password - Keep session token (NO JWT conversion)
-- id: change_password
-  match:
-    url: <http|https>://<.*>/api/v1/um/change_password
-    methods: [POST, OPTIONS]
-  authenticators:
-    - handler: bearer_token  
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: noop  
-  upstream:
-    preserve_host: false
-    strip_path: ""
-    url: http://taksa-user-services:8083
-
 # Update Profile - Convert to JWT (need role for authorization)
 - id: update_profile
   match:
@@ -145,54 +129,6 @@
     preserve_host: true
     strip_path: "" 
     url: http://taksa-kratos:4433
-
-# Login endpoint - No authentication needed
-- id: login_user
-  match:
-    url: <http|https>://<.*>/api/v1/um/login
-    methods: [POST, OPTIONS]
-  authenticators:
-    - handler: noop
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: noop
-  upstream:
-    preserve_host: false
-    strip_path: ""
-    url: http://taksa-user-services:8083
-
-# Forgot Password - Public endpoint
-- id: forgot_password
-  match:
-    url: <http|https>://<.*>/api/v1/um/forgot_password
-    methods: [POST, OPTIONS]
-  authenticators:
-    - handler: noop
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: noop
-  upstream:
-    preserve_host: false
-    strip_path: ""
-    url: http://taksa-user-services:8083
-
-# Reset Password - Public endpoint
-- id: reset_password
-  match:
-    url: <http|https>://<.*>/api/v1/um/reset_password
-    methods: [POST, OPTIONS]
-  authenticators:
-    - handler: noop
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: noop
-  upstream:
-    preserve_host: false
-    strip_path: ""
-    url: http://taksa-user-services:8083
 
 # KRATOS SCHEMAS 
 - id: kratos_schemas

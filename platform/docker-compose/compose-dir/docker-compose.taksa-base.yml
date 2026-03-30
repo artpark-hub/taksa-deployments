@@ -41,15 +41,14 @@ services:
       # Base URLs set to placeholder, HAProxy will inject X-Forwarded-* headers
       - SERVE_PUBLIC_BASE_URL=https://placeholder/
       - SERVE_ADMIN_BASE_URL=https://placeholder/
-      - SESSION_COOKIE_DOMAIN=${TAKSA_DOMAIN}
-      - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://${TAKSA_DOMAIN},http://localhost:3000
-      - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://${TAKSA_DOMAIN}/
-      - SELFSERVICE_ALLOWED_RETURN_URLS=https://${TAKSA_DOMAIN},http://localhost:3000
-      - SELFSERVICE_FLOWS_ERROR_UI_URL=https://${TAKSA_DOMAIN}/error
+      - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},https://${TAKSA_DOMAIN}:${OATHKEEPER_PROXY_PORT},http://localhost:3000
+      - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=/
+      - SELFSERVICE_ALLOWED_RETURN_URLS=https://${TAKSA_DOMAIN}:${KRATOS_PUBLIC_PORT},https://${TAKSA_DOMAIN}:${KRATOS_ADMIN_PORT},http://localhost:3000
+      - SELFSERVICE_FLOWS_ERROR_UI_URL=/error
       - SELFSERVICE_FLOWS_SETTINGS_UI_URL=/reset-password
       - SELFSERVICE_FLOWS_RECOVERY_UI_URL=/recovery
-      - SELFSERVICE_FLOWS_LOGIN_UI_URL=/login
-      - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=/registration
+      - SELFSERVICE_FLOWS_LOGIN_UI_URL=/
+      - SELFSERVICE_FLOWS_REGISTRATION_UI_URL=/register
       # SMTP Configuration for Email Recovery
       - COURIER_SMTP_CONNECTION_URI=${SMTP_CONNECTION_URI}
       - COURIER_SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS}
@@ -77,6 +76,18 @@ services:
     restart: unless-stopped
     depends_on:
       - taksa-kratos
+
+  taksa-user-services:
+    image: taksa-user-services:latest
+    container_name: taksa-user-services
+    environment:
+      - TAKSA_DATABASE_DSN=${TAKSA_USER_SERVICES_DSN}
+    depends_on:
+      - taksa-kratos
+      - taksa-pg-db
+    networks:
+      - taksa-network
+    restart: unless-stopped
 
   taksa-mailslurper:
     image: oryd/mailslurper:latest-smtps
