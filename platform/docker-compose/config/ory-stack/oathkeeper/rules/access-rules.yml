@@ -114,11 +114,11 @@
     strip_path: ""
     url: http://taksa-user-services:8083
 
-# Protected endpoint - Register Device
+# Protected endpoint - umh facing endpoints
 - id: register_device
   match:
-    url: <http|https>://<.*>/api/v1/devicemgmt/devices
-    methods: [POST, OPTIONS]
+    url: <http|https>://<.*>/api/v2/intance/<.*>
+    methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
   authenticators:
     - handler: cookie_session
     - handler: bearer_token
@@ -131,11 +131,11 @@
     strip_path: ""
     url: http://taksa-device-management:8000
 
-#Protected endpoint - List Devices
+#Protected endpoint - Device management UI facing endpoints
 - id: list_devices
   match:
     url: <http|https>://<.*>/api/v1/devicemgmt/devices/<.*>
-    methods: [GET, OPTIONS]
+    methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
   authenticators:
     - handler: cookie_session
     - handler: bearer_token

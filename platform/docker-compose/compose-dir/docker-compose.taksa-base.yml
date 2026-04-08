@@ -153,7 +153,7 @@ services:
     restart: unless-stopped
 
   taksa-ui:
-    image: taksa-registry.local/taksa-ui:dev
+    image: ${TAKSA_UI_IMAGE:-taksa-registry.local/taksa-ui:dev}
     container_name: taksa-ui
     environment:
       - NODE_ENV=production
