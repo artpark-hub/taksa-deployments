@@ -12,7 +12,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 
 # Token exchange endpoint - Returns JWT token (supports both bearer token and cookie)
 - id: get_jwt_token
@@ -29,7 +29,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 
 # Protected endpoint - Sub-user creation (requires JWT bearer token)
 - id: create_sub_user
@@ -46,7 +46,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 
 # Protected endpoint - List Sub-users 
 - id: list_sub_users
@@ -63,7 +63,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 # Protected endpoint - Delete Sub-users 
 - id: delete_sub_user
   match:
@@ -79,7 +79,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 # Protected endpoint - Delete Master-user
 - id: delete_master_user
   match:
@@ -95,7 +95,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 
 # Update Profile - Convert to JWT (need role for authorization)
 - id: update_profile
@@ -112,7 +112,7 @@
   upstream:
     preserve_host: false
     strip_path: ""
-    url: http://taksa-user-services:8083
+    url: http://taksa-user-management:8083
 
 # Protected endpoint - umh facing endpoints
 - id: register_device
