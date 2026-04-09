@@ -77,14 +77,52 @@ services:
     depends_on:
       - taksa-kratos
 
-  taksa-user-services:
-    image: taksa-user-services:latest
-    container_name: taksa-user-services
+  taksa-user-management:
+    image: ${DOCKER_REGISTRY:-registry.taksa.org}/taksa-user-management:${DOCKER_LABEL:-dev}
+    container_name: taksa-user-management
     environment:
-      - TAKSA_DATABASE_DSN=${TAKSA_USER_SERVICES_DSN}
+      - TAKSA_DATABASE_DSN=${TAKSA_USER_MANAGEMENT_DSN}
     depends_on:
       - taksa-kratos
       - taksa-pg-db
+    networks:
+      - taksa-network
+    restart: unless-stopped
+
+  taksa-device-management:
+    image: ${DOCKER_REGISTRY:-registry.taksa.org}/taksa-device-management:${DOCKER_LABEL:-dev}
+    container_name: taksa-device-management
+    environment:
+      - TAKSA_DM_LOG_LEVEL=${TAKSA_DM_LOG_LEVEL:-info}
+      - TAKSA_DM_LOG_FILE=/data/taksa-device-management.log
+      - TAKSA_DM_HTTP_PORT=8000
+      - TAKSA_DM_GRPC_PORT=9000
+      - TAKSA_DM_DATABASE_DRIVER=${TAKSA_DM_DATABASE_DRIVER:-postgres}
+      - TAKSA_DM_DATABASE_SOURCE=${TAKSA_DM_DATABASE_SOURCE:-/data/taksa-device-management.db}
+    volumes:
+      - taksa-dm-data:/data
+    networks:
+      - taksa-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  taksa-app-traceability:
+    image: ${DOCKER_REGISTRY:-registry.taksa.org}/taksa-app-traceability:${DOCKER_LABEL:-dev}
+    container_name: taksa-app-traceability
+    environment:
+      - DB_USER=${TSDB_PG_USER}
+      - DB_PASSWORD=${TSDB_PG_PASSWORD}
+      - DB_HOST=taksa-tsdb
+      - DB_PORT=${TSDB_PG_PORT:-5432}
+      - DB_NAME=${TSDB_PG_DB}
+    depends_on:
+      taksa-tsdb:
+        condition: service_healthy
     networks:
       - taksa-network
     restart: unless-stopped
@@ -144,7 +182,7 @@ services:
     environment:
       - OATHKEEPER_HOST=taksa-oathkeeper
       - OATHKEEPER_PORT=4457
-      - BACKEND_HOST=taksa-ui
+      - BACKEND_HOST=taksa-ui-service
       - BACKEND_PORT=3000
     networks:
       - taksa-network
@@ -152,9 +190,9 @@ services:
       - taksa-oathkeeper
     restart: unless-stopped
 
-  taksa-ui:
-    image: taksa-ui:latest
-    container_name: taksa-ui
+  taksa-ui-service:
+    image: ${DOCKER_REGISTRY:-registry.taksa.org}/taksa-ui-service:${DOCKER_LABEL:-dev}
+    container_name: taksa-ui-service
     environment:
       - NODE_ENV=production
     networks:
@@ -195,7 +233,7 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '${TAKSA_DATADIR}/taksa/data/ory-db'
+      device: '${TAKSA_DATADIR}/taksa/data/postgres-db'
   taksa-ts-data:
     driver_opts:
       type: 'none'
@@ -211,6 +249,11 @@ volumes:
       type: 'none'
       o: 'bind'
       device: '${TAKSA_DATADIR}/taksa/data/grafana'
+  taksa-dm-data:
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${TAKSA_DATADIR}/taksa/data/device-management'
 
 networks:
   taksa-network:
