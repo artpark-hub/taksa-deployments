@@ -147,35 +147,3 @@
     preserve_host: false
     strip_path: ""
     url: http://taksa-device-management:8000
-
-# KRATOS PUBLIC API (Recovery, Settings, Verification, Login/Register Flows)
-- id: kratos_public
-  match:
-    url: <http|https>://<.*>/self-service/<.*>
-    methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
-  authenticators:
-    - handler: noop
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: noop
-  upstream:
-    preserve_host: true
-    strip_path: "" 
-    url: http://taksa-kratos:4433
-
-# KRATOS SCHEMAS 
-- id: kratos_schemas
-  match:
-    url: <http|https>://<.*>/schemas/<.*>
-    methods: [GET, OPTIONS]
-  authenticators:
-    - handler: noop
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: noop
-  upstream:
-    preserve_host: true
-    strip_path: "" 
-    url: http://taksa-kratos:4433
