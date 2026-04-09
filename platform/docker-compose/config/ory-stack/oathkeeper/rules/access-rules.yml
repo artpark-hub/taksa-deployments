@@ -114,34 +114,36 @@
     strip_path: ""
     url: http://taksa-user-services:8083
 
-# KRATOS PUBLIC API (Recovery, Settings, Verification, Login/Register Flows)
-- id: kratos_public
+# Protected endpoint - umh facing endpoints
+- id: register_device
   match:
-    url: <http|https>://<.*>/self-service/<.*>
+    url: <http|https>://<.*>/api/v2/intance/<.*>
     methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
   authenticators:
-    - handler: noop
+    - handler: cookie_session
+    - handler: bearer_token
   authorizer:
     handler: allow
   mutators:
-    - handler: noop
+    - handler: id_token
   upstream:
-    preserve_host: true
-    strip_path: "" 
-    url: http://taksa-kratos:4433
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-device-management:8000
 
-# KRATOS SCHEMAS 
-- id: kratos_schemas
+#Protected endpoint - Device management UI facing endpoints
+- id: list_devices
   match:
-    url: <http|https>://<.*>/schemas/<.*>
-    methods: [GET, OPTIONS]
+    url: <http|https>://<.*>/api/v1/devicemgmt/devices/<.*>
+    methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
   authenticators:
-    - handler: noop
+    - handler: cookie_session
+    - handler: bearer_token
   authorizer:
     handler: allow
   mutators:
-    - handler: noop
+    - handler: id_token
   upstream:
-    preserve_host: true
-    strip_path: "" 
-    url: http://taksa-kratos:4433
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-device-management:8000
