@@ -26,7 +26,7 @@ The underlying orchestration script is `taksa-stack-management.sh`, which compos
 
 ```bash
 ./scripts/generate-ssl-certs.sh
-# Default domain: localcontroller.taksa-os.manufacturing
+# Default domain: localcontroller.taksa.org
 # Outputs: server.key, server.crt, server.pem under config/haproxy/certs/
 ```
 
@@ -52,7 +52,7 @@ The stack is a **Docker Compose-based microservices deployment** with these laye
 - **Oathkeeper** (port 4456/4457): Decision API + reverse proxy enforcing access rules defined in `config/ory-stack/oathkeeper/access-rules.yml`. Mutates requests by injecting JWT ID tokens for downstream services.
 
 ### Application Services
-- **Taksa User Services** (port 8083): Custom backend handling master-user registration, sub-user management, and JWT token exchange. Sits behind Oathkeeper.
+- **Taksa User Management** (port 8083): Custom backend handling master-user registration, sub-user management, and JWT token exchange. Sits behind Oathkeeper.
 - **Taksa UI** (port 3000): React/Node.js frontend.
 - **Mailslurper**: SMTP testing server for email verification flows in development.
 
