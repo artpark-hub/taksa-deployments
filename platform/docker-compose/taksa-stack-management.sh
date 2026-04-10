@@ -1,7 +1,11 @@
 #!/bin/bash
 #set -ex
 
-. ./taksa.env
+if [ -f ./taksa.env ]; then
+    . ./taksa.env
+elif [ -f ./taksa.env.example ]; then
+    . ./taksa.env.example
+fi
 
 export COMPOSE_HTTP_TIMEOUT=300
 dockercompose_dir=./compose-dir
