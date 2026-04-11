@@ -92,13 +92,21 @@ services:
   taksa-device-management:
     image: ${DOCKER_REGISTRY:-registry.taksa.org}/taksa-device-management:${DOCKER_LABEL:-dev}
     container_name: taksa-device-management
+    # Note: docker-compose dev mode runs as root for simplicity.
+    # Production Kubernetes/orchestrators use non-root 'taksa' user from Dockerfile.
+    user: root
+    ports:
+      - "${TAKSA_DM_HTTP_PORT:-8000}:8000"
+      - "${TAKSA_DM_GRPC_PORT:-9000}:9000"
     environment:
-      - TAKSA_DM_LOG_LEVEL=${TAKSA_DM_LOG_LEVEL:-info}
-      - TAKSA_DM_LOG_FILE=/data/taksa-device-management.log
-      - TAKSA_DM_HTTP_PORT=8000
-      - TAKSA_DM_GRPC_PORT=9000
-      - TAKSA_DM_DATABASE_DRIVER=${TAKSA_DM_DATABASE_DRIVER:-postgres}
+      - TAKSA_DM_LOG_LEVEL=${TAKSA_DM_LOG_LEVEL:-debug}
+      - TAKSA_DM_LOG_FILE=${TAKSA_DM_LOG_FILE:-/data/taksa-device-management.log}
+      - TAKSA_DM_HTTP_PORT=${TAKSA_DM_HTTP_PORT:-8000}
+      - TAKSA_DM_GRPC_PORT=${TAKSA_DM_GRPC_PORT:-9000}
       - TAKSA_DM_DATABASE_SOURCE=${TAKSA_DM_DATABASE_SOURCE:-/data/taksa-device-management.db}
+      - TAKSA_DM_DATABASE_DRIVER=${TAKSA_DM_DATABASE_DRIVER:-postgres}
+      - TAKSA_DM_BASE_URL=${TAKSA_DM_BASE_URL:-http://localhost:8000}
+      - TAKSA_DM_UMH_CORE_DOCKER_IMAGE=${TAKSA_DM_UMH_CORE_DOCKER_IMAGE:-management.umh.app/oci/united-manufacturing-hub/umh-core:v0.43.17}
     volumes:
       - taksa-dm-data:/data
     networks:
@@ -123,6 +131,28 @@ services:
     depends_on:
       taksa-tsdb:
         condition: service_healthy
+    networks:
+      - taksa-network
+    restart: unless-stopped
+
+  taksa-nats-data-collector:
+    image: ${DOCKER_REGISTRY:-registry.taksa.org}/taksa-nats-data-collector:${DOCKER_LABEL:-dev}
+    container_name: taksa-nats-data-collector
+    environment:
+      - TSDB_PG_USER=${TSDB_PG_USER}
+      - TSDB_PG_PASSWORD=${TSDB_PG_PASSWORD}
+      - TSDB_PG_DB=${TSDB_PG_DB}
+      - TAKSA_NATS_APP_USER=${TAKSA_NATS_APP_USER}
+      - TAKSA_NATS_APP_PASSWORD=${TAKSA_NATS_APP_PASSWORD}
+      - NATS_SUBJECT=${NATS_SUBJECT:-uns.v1.>}
+      - NATS_QUEUE_GROUP=${NATS_QUEUE_GROUP:-traceability_workers}
+      - NATS_STREAM=${NATS_STREAM:-UNS_DATA}
+      - NATS_DLQ=${NATS_DLQ:-uns.dlq}
+    depends_on:
+      taksa-tsdb:
+        condition: service_healthy
+      taksa-nats:
+        condition: service_started
     networks:
       - taksa-network
     restart: unless-stopped
@@ -167,6 +197,8 @@ services:
     volumes:
       - ../config/nats/nats-server.conf:/config/nats-server.conf:ro
       - taksa-nats-data:/data
+    networks:
+      - taksa-network
 
   taksa-apigateway:
     image: haproxy:3.2
