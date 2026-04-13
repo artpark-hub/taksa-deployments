@@ -53,6 +53,9 @@ The stack is a **Docker Compose-based microservices deployment** with these laye
 
 ### Application Services
 - **Taksa User Management** (port 8083): Custom backend handling master-user registration, sub-user management, and JWT token exchange. Sits behind Oathkeeper.
+- **Taksa Device Management** (HTTP :8000, gRPC :9000): Device registration, telemetry ingestion, and async action distribution. Sits behind Oathkeeper.
+- **Taksa App Traceability** (HTTP :8000, gRPC :9000): MES traceability service. Reads/writes manufacturing records to TimescaleDB. Depends on `taksa-tsdb`.
+- **Taksa NATS Data Collector**: Subscribes to NATS JetStream (`NATS_SUBJECT`, default `uns.v1.>`) and persists UNS messages to TimescaleDB. Depends on `taksa-tsdb` (healthy) and `taksa-nats`. Configured via `NATS_SUBJECT`, `NATS_QUEUE_GROUP`, `NATS_STREAM`, `NATS_DLQ` env vars.
 - **Taksa UI** (port 3000): React/Node.js frontend.
 - **Mailslurper**: SMTP testing server for email verification flows in development.
 
