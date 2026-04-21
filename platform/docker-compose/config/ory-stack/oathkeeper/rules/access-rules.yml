@@ -18,7 +18,7 @@
 - id: generate_organization_id
   match:
     url: <http|https>://<.*>/api/v1/um/generate_organization_id
-    methods: [GET, OPTIONS]
+    methods: [POST, OPTIONS]
   authenticators:
     - handler: noop
   authorizer:
