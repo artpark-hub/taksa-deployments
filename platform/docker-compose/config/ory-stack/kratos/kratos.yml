@@ -35,6 +35,20 @@ selfservice:
         haveibeenpwned_enabled: false
         min_password_length: 8
         identifier_similarity_check_enabled: false 
+    oidc:
+      enabled: true
+      config:
+        providers:
+          - id: google
+            provider: google
+            client_id: you_Client_ID
+            client_secret: you_Secret
+            issuer_url: https://accounts.google.com
+            mapper_url: file:///etc/config/kratos/google_oidc_mapper.jsonnet
+            scope:
+              - openid
+              - email
+              - profile
   flows:
     # error:
     #   ui_url: defined in the environment
@@ -56,6 +70,9 @@ selfservice:
       # ui_url: defined in the environment
       after:
         password:
+          hooks:
+            - hook: session
+        oidc:
           hooks:
             - hook: session
 log:

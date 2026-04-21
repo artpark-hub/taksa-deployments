@@ -42,6 +42,12 @@
           "description": "Role of the user within the organization",
           "default": "sub"
         },
+        "organization_id": {
+          "type": "string",
+          "title": "Organization ID",
+          "description": "The unique identifier of the organization this user belongs to",
+          "minLength": 1
+        },
         "organization_name": {
           "type": "string",
           "title": "Organization Name",
@@ -51,6 +57,7 @@
       },
       "required": [
         "email",
+        "organization_id",
         "organization_name"
       ],
       "additionalProperties": false

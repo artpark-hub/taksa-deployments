@@ -14,6 +14,22 @@
     strip_path: ""
     url: http://taksa-user-management:8083
 
+# Public endpoint - Generate Organization ID
+- id: generate_organization_id
+  match:
+    url: <http|https>://<.*>/api/v1/um/generate_organization_id
+    methods: [GET, OPTIONS]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-management:8083
+
 # Token exchange endpoint - Returns JWT token (supports both bearer token and cookie)
 - id: get_jwt_token
   match:
