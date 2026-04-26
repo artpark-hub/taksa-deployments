@@ -21,7 +21,7 @@ services:
     image: oryd/kratos:v1.2.0
     environment:
       - DSN=${KRATOS_DSN}
-      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes

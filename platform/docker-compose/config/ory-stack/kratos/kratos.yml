@@ -1,5 +1,5 @@
 version: v1.2.0
-# dsn: postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+# dsn: postgres://kratos:secret@postgres:5432/kratos?sslmode=disable
 serve:
   public:
     # base_url: defined in the environment
