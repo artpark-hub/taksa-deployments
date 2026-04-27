@@ -43,8 +43,8 @@ selfservice:
             provider: google
             client_id: ${KRATOS_OIDC_GOOGLE_CLIENT_ID}
             client_secret: ${KRATOS_OIDC_GOOGLE_CLIENT_SECRET}
-            issuer_url: https://accounts.google.com
-            mapper_url: file:///etc/config/kratos/google_oidc_mapper.jsonnet
+            issuer_url: ${KRATOS_OIDC_GOOGLE_ISSUER_URL}
+            mapper_url: file:///etc/config/kratos/oidc_mapper.jsonnet
             scope:
               - openid
               - email
