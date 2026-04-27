@@ -30,6 +30,22 @@
     strip_path: ""
     url: http://taksa-user-management:8083
 
+# Public endpoint - Store/retrieve temporary Google registration context cookie
+- id: google_register_context
+  match:
+    url: <http|https>://<.*>/api/auth/google-register-context
+    methods: [POST, GET, DELETE, OPTIONS]
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-ui-service:3000
+
 # Token exchange endpoint - Returns JWT token (supports both bearer token and cookie)
 - id: get_jwt_token
   match:
