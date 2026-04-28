@@ -21,7 +21,7 @@ services:
     image: oryd/kratos:v1.2.0
     environment:
       - DSN=${KRATOS_DSN}
-      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable
+      #- DSN=postgres://kratos:secret@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
       - ../config/ory-stack/kratos:/etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
@@ -101,7 +101,7 @@ services:
       - TAKSA_DM_HTTP_PORT=${TAKSA_DM_HTTP_PORT:-8000}
       - TAKSA_DM_GRPC_PORT=${TAKSA_DM_GRPC_PORT:-9000}
       - TAKSA_DM_DATABASE_SOURCE=${TAKSA_DM_DATABASE_SOURCE:-/data/taksa-device-management.db}
-      - TAKSA_DM_DATABASE_DRIVER=${TAKSA_DM_DATABASE_DRIVER:-sqlite}
+      - TAKSA_DM_DATABASE_DRIVER=${TAKSA_DM_DATABASE_DRIVER:-postgres}
       - TAKSA_DM_BASE_URL=${TAKSA_DM_BASE_URL:-http://localhost:8000}
       - TAKSA_DM_UMH_CORE_DOCKER_IMAGE=${TAKSA_DM_UMH_CORE_DOCKER_IMAGE:-management.umh.app/oci/united-manufacturing-hub/umh-core:v0.43.17}
     volumes:
