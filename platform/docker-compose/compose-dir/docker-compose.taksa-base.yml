@@ -8,6 +8,7 @@ services:
       - POSTGRES_DB=${TAKSA_PG_DB}
     volumes:
       - taksa-pg-data:/var/lib/postgresql
+      - ../config/database/schemas/02-dm-schema.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - taksa-network
     restart: unless-stopped
@@ -175,7 +176,7 @@ services:
       - POSTGRES_DB=${TSDB_PG_DB}
     volumes:
       - taksa-ts-data:/var/lib/postgresql
-      - ../config/database/schemas:/docker-entrypoint-initdb.d:ro
+      - ../config/database/schemas/01-base-schema.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - taksa-network
     restart: unless-stopped
