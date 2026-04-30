@@ -56,6 +56,6 @@ mutators:
           "email": "{{ .Extra.identity.traits.email }}",
           "role": "{{ .Extra.identity.traits.role }}",
           "organization_name": "{{ .Extra.identity.traits.organization_name }}",
-          "organization_id": "{{ .Extra.identity.traits.organization_id }}"
+          "tenant_id": "{{ .Extra.identity.traits.tenant_id }}"
         }
 

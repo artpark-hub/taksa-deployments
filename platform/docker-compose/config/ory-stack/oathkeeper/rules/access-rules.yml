@@ -149,7 +149,7 @@
 # Protected endpoint - umh facing endpoints
 - id: register_device
   match:
-    url: <http|https>://<.*>/api/v2/intance/<.*>
+    url: <http|https>://<.*>/api/v2/instance/<.*>
     methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
   authenticators:
     - handler: cookie_session
@@ -168,6 +168,38 @@
   match:
     url: <http|https>://<.*>/api/v1/devicemgmt/devices/<.*>
     methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-device-management:8000
+
+- id: device_management_devices_collection
+  match:
+    url: <http|https>://<.*>/api/v1/devicemgmt/devices
+    methods: [GET, POST, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-device-management:8000
+
+- id: device_management_instance_collection
+  match:
+    url: <http|https>://<.*>/api/v2/instance
+    methods: [GET, POST, OPTIONS]
   authenticators:
     - handler: cookie_session
     - handler: bearer_token

@@ -42,10 +42,10 @@
           "description": "Role of the user within the organization",
           "default": "sub"
         },
-        "organization_id": {
+        "tenant_id": {
           "type": "string",
-          "title": "Organization ID",
-          "description": "The unique identifier of the organization this user belongs to",
+          "title": "Tenant ID",
+          "description": "The unique identifier of the tenant this user belongs to",
           "minLength": 1
         },
         "organization_name": {
@@ -57,7 +57,7 @@
       },
       "required": [
         "email",
-        "organization_id",
+        "tenant_id",
         "organization_name"
       ],
       "additionalProperties": false
