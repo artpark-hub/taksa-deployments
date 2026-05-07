@@ -236,7 +236,7 @@ services:
     restart: unless-stopped
 
   taksa-grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.4.2
     container_name: taksa-grafana
     #ports:
     #- "${GRAFANA_PORT}:3000"
