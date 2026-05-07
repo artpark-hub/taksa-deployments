@@ -15,5 +15,5 @@ datasources:
     jsonData:
       database: ${TSDB_PG_DB}
       sslmode: disable
-      postgresVersion: 1500
+      postgresVersion: 1800
       timescaledb: true
