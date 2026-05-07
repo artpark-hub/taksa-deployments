@@ -5,14 +5,15 @@ datasources:
   - name: Taksa-TSDB
     type: postgres
     access: proxy
+    orgId: 1
     url: taksa-tsdb:5432
-    database: ${TSDB_PG_DB}
     user: ${TSDB_PG_USER}
+    isDefault: true
+    editable: true
     secureJsonData:
       password: ${TSDB_PG_PASSWORD}
     jsonData:
+      database: ${TSDB_PG_DB}
       sslmode: disable
-      postgresVersion: 1500
+      postgresVersion: 1800
       timescaledb: true
-    isDefault: true
-
