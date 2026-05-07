@@ -187,6 +187,34 @@ CREATE TABLE IF NOT EXISTS module_telemetry (
 
 SELECT create_hypertable('module_telemetry', 'time', if_not_exists => TRUE);
 
+
+-- 6b. NATS COLLECTOR EQUIPMENT TELEMETRY (HYPERTABLE)
+-- The taksa-nats-data-collector writes decoded NATS/UNS values here.
+-- Keep this schema in the TSDB init path so fresh deployments match the collector contract.
+CREATE TABLE IF NOT EXISTS equipment_master (
+    id VARCHAR(50) PRIMARY KEY,
+    operational_status VARCHAR(50),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS equipment_telemetry (
+    id BIGSERIAL,
+    equipment_id VARCHAR(50) NOT NULL REFERENCES equipment_master(id) ON DELETE CASCADE,
+    parameter_name VARCHAR(100) NOT NULL,
+    value DOUBLE PRECISION NOT NULL,
+    unit_of_measure VARCHAR(50),
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+SELECT create_hypertable($$equipment_telemetry$$, $$recorded_at$$, if_not_exists => TRUE);
+
+CREATE INDEX IF NOT EXISTS idx_equipment_telemetry_equipment_time
+    ON equipment_telemetry(equipment_id, recorded_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_equipment_telemetry_param_time
+    ON equipment_telemetry(equipment_id, parameter_name, recorded_at DESC);
+
 -- 7. QUALITY & DEFECTS
 CREATE TABLE IF NOT EXISTS defect_definitions (
     id INT PRIMARY KEY,
