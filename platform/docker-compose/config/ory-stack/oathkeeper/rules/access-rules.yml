@@ -129,6 +129,23 @@
     strip_path: ""
     url: http://taksa-user-management:8083
 
+#Delete incomplete OIDC user. 
+- id: delete_incomplete_oidc_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/delete_incomplete_oidc_user/<.*>
+    methods: [DELETE, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-management:8083
+
 # Update Profile - Convert to JWT (need role for authorization)
 - id: update_profile
   match:
