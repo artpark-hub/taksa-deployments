@@ -56,9 +56,7 @@
         }
       },
       "required": [
-        "email",
-        "tenant_id",
-        "organization_name"
+        "email"
       ],
       "additionalProperties": false
     }
