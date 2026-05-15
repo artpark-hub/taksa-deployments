@@ -163,6 +163,38 @@
     strip_path: ""
     url: http://taksa-user-management:8083
 
+- id: add_oidc_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/add_oidc_user
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token  
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-management:8083
+
+- id: check_user
+  match:
+    url: <http|https>://<.*>/api/v1/um/check_user
+    methods: [POST, OPTIONS]
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token  
+  upstream:
+    preserve_host: false
+    strip_path: ""
+    url: http://taksa-user-management:8083
+
 # Protected endpoint - umh facing endpoints
 - id: register_device
   match:

@@ -9,6 +9,7 @@ services:
     volumes:
       - taksa-pg-data:/var/lib/postgresql
       - ../config/database/schemas/02-dm-schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../config/database/schemas/03-um-schema.sql:/docker-entrypoint-initdb.d/um_init.sql
     networks:
       - taksa-network
     restart: unless-stopped
